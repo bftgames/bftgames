@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Gemeinsame Liste</title>
+</head>
+<body>
+
+<h1>Liste</h1>
+
+<input id="input" placeholder="Eintrag hinzufügen">
+<button onclick="add()">Hinzufügen</button>
+
+<ul id="list"></ul>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+const supabase = supabase.createClient(
+  "https://DEIN-PROJEKT.supabase.co",
+  "PUBLIC_ANON_KEY"
+)
+
+async function load() {
+  const { data } = await supabase
+    .from('items')
+    .select('*')
+    .order('created_at')
+
+  document.getElementById('list').innerHTML =
+    data.map(i => `<li>${i.text}</li>`).join('')
+}
+
+async function add() {
+  const value = document.getElementById('input').value
+  if (!value) return
+
+  await supabase.from('items').insert({ text: value })
+  document.getElementById('input').value = ''
+  load()
+}
+
+load()
+</script>
+
+</body>
+</html>
