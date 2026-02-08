@@ -1,46 +1,176 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Gemeinsame Liste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --card: #141a2e;
+      --accent: #7c8cff;
+      --text: #e9ecff;
+      --muted: #9aa3ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #141a2e, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--accent);
+      text-shadow: 0 0 12px rgba(124, 140, 255, 0.4);
+    }
+
+    .input-card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 14px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.4);
+    }
+
+    input {
+      flex: 1;
+      background: #0b0f1a;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #666cff;
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--accent), #9f7cff);
+      border: none;
+      border-radius: 10px;
+      padding: 0 18px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 0 18px rgba(124,140,255,.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 28px rgba(124,140,255,.7);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    li {
+      background: var(--card);
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-weight: 500;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      animation: fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+      opacity: .8;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Liste</h1>
+  <div class="app">
+    <h1>🎮 Gemeinsame Liste</h1>
 
-<input id="input" placeholder="Eintrag hinzufügen">
-<button onclick="add()">Hinzufügen</button>
+    <div class="input-card">
+      <input id="input" placeholder="Eintrag hinzufügen…" />
+      <button onclick="add()">+</button>
+    </div>
 
-<ul id="list"></ul>
+    <ul id="list"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-const supabase = supabase.createClient(
-  "https://DEIN-PROJEKT.supabase.co",
-  "PUBLIC_ANON_KEY"
-)
+    <footer>
+      Live • Öffentlich • Supabase
+    </footer>
+  </div>
 
-async function load() {
-  const { data } = await supabase
-    .from('items')
-    .select('*')
-    .order('created_at')
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient(
+      "https://eidmiyovaieorflbzgoz.supabase.co",
+      "PUBLIC_ANON_KEY"
+    )
 
-  document.getElementById('list').innerHTML =
-    data.map(i => `<li>${i.text}</li>`).join('')
-}
+    async function load() {
+      const { data } = await supabase
+        .from('items')
+        .select('*')
+        .order('created_at')
 
-async function add() {
-  const value = document.getElementById('input').value
-  if (!value) return
+      document.getElementById('list').innerHTML =
+        data.map(i => `<li>${i.text}</li>`).join('')
+    }
 
-  await supabase.from('items').insert({ text: value })
-  document.getElementById('input').value = ''
-  load()
-}
+    async function add() {
+      const input = document.getElementById('input')
+      if (!input.value.trim()) return
 
-load()
-</script>
+      await supabase.from('items').insert({ text: input.value })
+      input.value = ''
+      load()
+    }
+
+    load()
+  </script>
 
 </body>
 </html>
+
