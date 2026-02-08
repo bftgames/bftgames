@@ -16,10 +16,7 @@
       --muted: #9aa3ff;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
     body {
       margin: 0;
@@ -31,18 +28,13 @@
       padding: 40px 16px;
     }
 
-    .app {
-      width: 100%;
-      max-width: 520px;
-    }
+    .app { width: 100%; max-width: 520px; }
 
     h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
       text-align: center;
-      margin-bottom: 24px;
       color: var(--accent);
-      text-shadow: 0 0 12px rgba(124, 140, 255, 0.4);
+      text-shadow: 0 0 12px rgba(124,140,255,.4);
+      margin-bottom: 24px;
     }
 
     .input-card {
@@ -62,12 +54,7 @@
       border-radius: 10px;
       padding: 12px;
       color: var(--text);
-      font-size: 1rem;
       outline: none;
-    }
-
-    input::placeholder {
-      color: #666cff;
     }
 
     button {
@@ -78,13 +65,7 @@
       color: white;
       font-weight: 600;
       cursor: pointer;
-      transition: transform .15s, box-shadow .15s;
       box-shadow: 0 0 18px rgba(124,140,255,.4);
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 28px rgba(124,140,255,.7);
     }
 
     ul {
@@ -100,20 +81,7 @@
       background: var(--card);
       padding: 14px 16px;
       border-radius: 12px;
-      font-weight: 500;
       box-shadow: 0 8px 30px rgba(0,0,0,.35);
-      animation: fadeIn .25s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
     }
 
     footer {
@@ -121,72 +89,76 @@
       text-align: center;
       font-size: .85rem;
       color: var(--muted);
-      opacity: .8;
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="app">
     <h1>🎮 Gemeinsame Liste</h1>
 
     <div class="input-card">
       <input id="input" placeholder="Eintrag hinzufügen…" />
-      <button onclick="add()">+</button>
+      <button id="addBtn">+</button>
     </div>
 
     <ul id="list"></ul>
 
-    <footer>
-      Live • Öffentlich • Supabase
-    </footer>
+    <footer>Live • Öffentlich • Supabase</footer>
   </div>
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  const supabase = createClient(
-    "https://DEIN-PROJEKT.supabase.co",
-    "PUBLIC_ANON_KEY"
-  )
+  <!-- EINZIGES SCRIPT -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  const list = document.getElementById('list')
-  const input = document.getElementById('input')
+    const supabase = createClient(
+      "https://DEIN-PROJEKT.supabase.co",
+      "PUBLIC_ANON_KEY"
+    )
 
-  async function load() {
-    const { data, error } = await supabase
-      .from('items')
-      .select('*')
-      .order('created_at')
+    const list = document.getElementById('list')
+    const input = document.getElementById('input')
+    const addBtn = document.getElementById('addBtn')
 
-    if (error) {
-      console.error(error)
-      return
+    async function load() {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .order('created_at')
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      list.innerHTML = data.map(i => `<li>${i.text}</li>`).join('')
     }
 
-    list.innerHTML = data.map(i => `<li>${i.text}</li>`).join('')
-  }
+    async function add() {
+      if (!input.value.trim()) return
 
-  window.add = async function () {
-    if (!input.value.trim()) return
+      const { error } = await supabase
+        .from('items')
+        .insert({ text: input.value })
 
-    const { error } = await supabase
-      .from('items')
-      .insert({ text: input.value })
+      if (error) {
+        console.error(error)
+        alert("Fehler beim Hinzufügen")
+        return
+      }
 
-    if (error) {
-      console.error(error)
-      alert("Fehler beim Hinzufügen")
-      return
+      input.value = ''
+      load()
     }
 
-    input.value = ''
+    addBtn.addEventListener('click', add)
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') add()
+    })
+
     load()
-  }
+  </script>
 
-  load()
-</script>
-
-  
 </body>
 </html>
 
